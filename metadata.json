@@ -1,0 +1,6 @@
+{
+  "name": "StrongProgress",
+  "description": "Calculadora de porcentagens e gerenciador de cargas máximas (1RM) para atletas de CrossFit e LPO com planos Free e PRO.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
