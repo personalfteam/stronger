@@ -19,6 +19,7 @@ import {
   Layers,
   CheckCircle2,
   BarChart3,
+  BookOpen,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import {
@@ -59,11 +60,22 @@ import { CustomExerciseModal } from './components/CustomExerciseModal';
 import { DownloadAppModal } from './components/DownloadAppModal';
 import { KiwifyWelcomeModal } from './components/KiwifyWelcomeModal';
 import { AthleteProfileModal } from './components/AthleteProfileModal';
+import { UserManualModal } from './components/UserManualModal';
+import { LandingPage } from './components/LandingPage';
 import { checkKiwifyUrlParams } from './utils/kiwify';
 import { User, Award, Activity, HeartPulse } from 'lucide-react';
 
 export default function App() {
   // State
+  const [currentScreen, setCurrentScreen] = useState<'app' | 'landing'>(() => {
+    if (typeof window !== 'undefined') {
+      const search = window.location.search.toLowerCase();
+      if (search.includes('landing') || search.includes('apresentacao') || search.includes('apresenta')) {
+        return 'landing';
+      }
+    }
+    return 'app';
+  });
   const [language, setLanguage] = useState<Language>(getStoredLanguage);
   const [exercises, setExercises] = useState<Exercise[]>(getStoredExercises);
   const [subscription, setSubscription] = useState<UserSubscription>(getStoredSubscription);
@@ -96,6 +108,7 @@ export default function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
   const [isCustomOpen, setIsCustomOpen] = useState<boolean>(false);
   const [isDownloadOpen, setIsDownloadOpen] = useState<boolean>(false);
+  const [isUserManualOpen, setIsUserManualOpen] = useState<boolean>(false);
   const [isKiwifyWelcomeOpen, setIsKiwifyWelcomeOpen] = useState<boolean>(false);
   const [isAthleteProfileOpen, setIsAthleteProfileOpen] = useState<boolean>(false);
   const [saveToast, setSaveToast] = useState<{ message: string; visible: boolean }>({
@@ -362,25 +375,38 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col selection:bg-amber-400 selection:text-zinc-950">
-      {/* Top Header */}
-      <Header
-        unit={unit}
-        onToggleUnit={handleToggleUnit}
-        barbell={barbell}
-        onChangeBarbell={handleChangeBarbell}
-        language={language}
-        onSelectLanguage={handleSelectLanguage}
-        athleteProfile={athleteProfile}
-        onOpenAthleteProfile={() => setIsAthleteProfileOpen(true)}
-        subscription={subscription}
-        onOpenUpgrade={() => setIsUpgradeOpen(true)}
-        onOpenDownloadApp={() => setIsDownloadOpen(true)}
-        onOpenCustomExercise={() => setIsCustomOpen(true)}
-        onOpenSettings={() => setIsSettingsOpen(true)}
-      />
+      {currentScreen === 'landing' ? (
+        <LandingPage
+          onEnterApp={() => setCurrentScreen('app')}
+          onOpenUpgrade={() => setIsUpgradeOpen(true)}
+          onOpenManual={() => setIsUserManualOpen(true)}
+          subscription={subscription}
+          pricing={pricing}
+          exercises={exercises}
+        />
+      ) : (
+        <>
+          {/* Top Header */}
+          <Header
+            unit={unit}
+            onToggleUnit={handleToggleUnit}
+            barbell={barbell}
+            onChangeBarbell={handleChangeBarbell}
+            language={language}
+            onSelectLanguage={handleSelectLanguage}
+            athleteProfile={athleteProfile}
+            onOpenAthleteProfile={() => setIsAthleteProfileOpen(true)}
+            subscription={subscription}
+            onOpenUpgrade={() => setIsUpgradeOpen(true)}
+            onOpenDownloadApp={() => setIsDownloadOpen(true)}
+            onOpenUserManual={() => setIsUserManualOpen(true)}
+            onOpenCustomExercise={() => setIsCustomOpen(true)}
+            onOpenSettings={() => setIsSettingsOpen(true)}
+            onViewLandingPage={() => setCurrentScreen('landing')}
+          />
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+          {/* Main Container */}
+          <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
         {/* Athletic Hero Banner with Stats */}
         <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-zinc-900 via-zinc-900/90 to-zinc-950 border border-zinc-800 p-6 sm:p-8 shadow-2xl">
           {/* Subtle background glow */}
@@ -673,6 +699,22 @@ export default function App() {
       <footer className="mt-12 border-t border-zinc-800/80 bg-zinc-950 py-6 text-center text-xs text-zinc-500 space-y-2">
         <div className="flex flex-wrap items-center justify-center gap-4">
           <button
+            onClick={() => setCurrentScreen('landing')}
+            className="hover:text-amber-300 flex items-center gap-1 font-bold text-amber-400/90"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Página de Apresentação</span>
+          </button>
+          <span>•</span>
+          <button
+            onClick={() => setIsUserManualOpen(true)}
+            className="hover:text-amber-300 flex items-center gap-1 font-bold text-zinc-300"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+            <span>{t.userManual}</span>
+          </button>
+          <span>•</span>
+          <button
             onClick={() => {
               if (!subscription.isActive) {
                 setIsUpgradeOpen(true);
@@ -697,6 +739,8 @@ export default function App() {
           StrongProgress • Calculadora de Cargas & Porcentagens para Atletas e Coaches de CrossFit e LPO.
         </p>
       </footer>
+        </>
+      )}
 
       {/* Modals */}
       <ExerciseDetailModal
@@ -778,6 +822,20 @@ export default function App() {
         onOpenDownload={() => {
           setIsKiwifyWelcomeOpen(false);
           setIsDownloadOpen(true);
+        }}
+      />
+
+      <UserManualModal
+        isOpen={isUserManualOpen}
+        onClose={() => setIsUserManualOpen(false)}
+        language={language}
+        onOpenDownloadApp={() => {
+          setIsUserManualOpen(false);
+          setIsDownloadOpen(true);
+        }}
+        onOpenAthleteProfile={() => {
+          setIsUserManualOpen(false);
+          setIsAthleteProfileOpen(true);
         }}
       />
 

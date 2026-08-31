@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dumbbell, Crown, Sparkles, Scale, Settings, Plus, Download, Smartphone, Lock, User, Activity, Globe, Check } from 'lucide-react';
+import { Dumbbell, Crown, Sparkles, Scale, Settings, Plus, Download, Smartphone, Lock, User, Activity, Globe, Check, BookOpen } from 'lucide-react';
 import { WeightUnit, BarbellType, UserSubscription, AthleteProfile, Language } from '../types';
 import { BARBELL_SPECS } from '../data/initialExercises';
 import { TRANSLATIONS, LANGUAGE_LABELS } from '../utils/i18n';
@@ -16,8 +16,10 @@ interface HeaderProps {
   subscription: UserSubscription;
   onOpenUpgrade: () => void;
   onOpenDownloadApp: () => void;
+  onOpenUserManual: () => void;
   onOpenCustomExercise: () => void;
   onOpenSettings: () => void;
+  onViewLandingPage?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -32,8 +34,10 @@ export const Header: React.FC<HeaderProps> = ({
   subscription,
   onOpenUpgrade,
   onOpenDownloadApp,
+  onOpenUserManual,
   onOpenCustomExercise,
   onOpenSettings,
+  onViewLandingPage,
 }) => {
   const isPro = subscription.isActive;
   const t = TRANSLATIONS[language] || TRANSLATIONS.pt;
@@ -194,6 +198,28 @@ export const Header: React.FC<HeaderProps> = ({
               ))}
             </select>
           </div>
+
+          {/* Apresentação & Método Landing Page */}
+          {onViewLandingPage && (
+            <button
+              onClick={onViewLandingPage}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/40 text-amber-400/90 hover:text-amber-300 rounded-xl text-xs font-bold transition-all shadow-sm group"
+              title="Ver Apresentação & Método do App"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+              <span>Apresentação</span>
+            </button>
+          )}
+
+          {/* Manual de Uso / Guia Rápido */}
+          <button
+            onClick={onOpenUserManual}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/40 text-zinc-200 rounded-xl text-xs font-bold transition-all shadow-sm group"
+            title={t.userManual}
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-400 group-hover:scale-110 transition-transform" />
+            <span className="inline">{t.userManual}</span>
+          </button>
 
           {/* Baixar / Instalar App (PRO Feature) */}
           <button

@@ -12,6 +12,7 @@ export interface Translations {
   womensBar: string;
   techBar: string;
   downloadApp: string;
+  userManual: string;
   newExercise: string;
   unlockPro: string;
   proSubscription: string;
@@ -87,6 +88,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     womensBar: 'Fem',
     techBar: 'Técnica',
     downloadApp: 'Baixar App',
+    userManual: 'Manual de Uso',
     newExercise: 'Novo Exercício',
     unlockPro: 'Desbloquear PRO',
     proSubscription: 'Assinatura PRO',
@@ -155,6 +157,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     womensBar: 'Women',
     techBar: 'Tech',
     downloadApp: 'Install App',
+    userManual: 'User Guide',
     newExercise: 'New Exercise',
     unlockPro: 'Unlock PRO',
     proSubscription: 'PRO Membership',
@@ -223,6 +226,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     womensBar: 'Fem',
     techBar: 'Técnica',
     downloadApp: 'Instalar App',
+    userManual: 'Manual de Uso',
     newExercise: 'Nuevo Ejercicio',
     unlockPro: 'Desbloquear PRO',
     proSubscription: 'Suscripción PRO',
@@ -291,6 +295,7 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     womensBar: 'Femmes',
     techBar: 'Tech',
     downloadApp: 'Installer l’App',
+    userManual: 'Guide d’Utilisation',
     newExercise: 'Nouvel Exercice',
     unlockPro: 'Débloquer PRO',
     proSubscription: 'Abonnement PRO',

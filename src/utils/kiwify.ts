@@ -19,7 +19,7 @@ export function checkKiwifyUrlParams(pricing: PricingConfig): KiwifyActivationRe
 
   // Indicators of magic unlock
   const hasKiwifyParam = params.has('kiwify') || params.has('kiwify_pro') || params.has('kiwify_token');
-  const hasMagicParam = params.has('magic') || params.has('unlock') || params.get('pro') === 'true';
+  const hasMagicParam = params.has('magic') || params.has('unlock');
   const hasKeyParam = params.get('key') || params.get('secret') || params.get('token');
 
   if (!hasKiwifyParam && !hasMagicParam && !hasKeyParam) {
@@ -27,18 +27,14 @@ export function checkKiwifyUrlParams(pricing: PricingConfig): KiwifyActivationRe
   }
 
   // Check secret key if configured
-  const configuredSecret = (pricing.magicSecretKey || 'STRONGPRO').trim().toLowerCase();
+  const configuredSecret = (pricing.magicSecretKey || 'SPRO-LIFETIME-2026').trim().toLowerCase();
   const providedKey = (hasKeyParam || params.get('kiwify') || params.get('magic') || '').trim().toLowerCase();
 
-  // If key matches or general unlock keyword passed
-  const isKeyValid = 
+  // Validate secret key or structured unlock
+  const isKeyValid =
     providedKey === configuredSecret ||
     providedKey === 'unlock' ||
-    providedKey === 'pro' ||
-    providedKey === 'lifetime' ||
-    providedKey === 'true' ||
-    hasMagicParam ||
-    hasKiwifyParam;
+    params.get('kiwify') === 'unlock';
 
   if (!isKeyValid) {
     return null;
@@ -83,72 +79,63 @@ export function checkKiwifyUrlParams(pricing: PricingConfig): KiwifyActivationRe
 export function generateKiwifyDeliveryUrl(
   baseUrl: string,
   plan: PlanType,
-  secretKey: string = 'STRONGPRO'
+  secretKey: string = 'SPRO-LIFETIME-2026'
 ): string {
   const cleanBase = baseUrl.split('?')[0].replace(/\/$/, '');
   return `${cleanBase}/?kiwify=unlock&plan=${plan}&key=${encodeURIComponent(secretKey)}&name={client_name}&email={client_email}`;
 }
 
 /**
- * Validate manual code entered by user
+ * Validate manual code or pasted magic link entered by user
  */
 export function validateManualActivationCode(
   code: string,
   pricing: PricingConfig
 ): KiwifyActivationResult | { isActivated: false; message: string } {
-  const cleanCode = code.trim().toUpperCase();
-  const secret = (pricing.magicSecretKey || 'STRONGPRO').trim().toUpperCase();
+  const cleanCode = code.trim();
+  const configuredSecret = (pricing.magicSecretKey || 'SPRO-LIFETIME-2026').trim().toUpperCase();
 
   if (!cleanCode) {
-    return { isActivated: false, message: 'Digite um código ou link válido.' };
+    return { isActivated: false, message: 'Por favor, insira seu Link Mágico recebido na compra.' };
   }
 
-  // Check if user pasted a full URL
-  if (cleanCode.includes('KIWIFY=') || cleanCode.includes('PRO=TRUE') || cleanCode.includes('UNLOCK')) {
+  // Check if user pasted a full URL / Magic Link
+  if (cleanCode.toLowerCase().includes('kiwify=unlock') || cleanCode.toLowerCase().includes('plan=')) {
     let plan: PlanType = 'lifetime';
-    if (cleanCode.includes('MENSAL') || cleanCode.includes('MONTHLY')) plan = 'subscription_monthly';
+    if (cleanCode.toLowerCase().includes('month') || cleanCode.toLowerCase().includes('mensal')) {
+      plan = 'subscription_monthly';
+    }
 
     return {
       isActivated: true,
       plan,
       source: 'kiwify',
-      message: 'Link Mágico da Kiwify validado com sucesso!',
+      message: 'Link Mágico validado! Seu Acesso PRO está ativo.',
     };
   }
 
-  // Check secret key or standard master codes
-  if (
-    cleanCode === secret ||
-    cleanCode === 'STRONGPRO' ||
-    cleanCode === 'VIP' ||
-    cleanCode === 'COACH' ||
-    cleanCode === 'PERSONAL' ||
-    cleanCode === 'BRINDE' ||
-    cleanCode === 'KIWIFY-PRO' ||
-    cleanCode === 'VITALICIO2026' ||
-    cleanCode === 'CROSSFIT-PRO' ||
-    cleanCode === 'LPO-PRO'
-  ) {
+  // Check configured secret key or previous master key
+  const upperCode = cleanCode.toUpperCase();
+  if (upperCode === configuredSecret || upperCode === 'STRONGPRO' || upperCode === 'SPRO-LIFETIME-2026') {
     return {
       isActivated: true,
       plan: 'lifetime',
       source: 'manual',
-      message: 'Acesso VIP Vitalício liberado com sucesso!',
+      message: 'Acesso Vitalício liberado com sucesso!',
     };
   }
 
-  // Monthly code
-  if (cleanCode === 'MENSAL-PRO' || cleanCode === 'MONTHLY-PRO') {
+  if (upperCode === 'SPRO-MENSAL-2026' || upperCode === 'MENSAL-PRO') {
     return {
       isActivated: true,
       plan: 'subscription_monthly',
       source: 'manual',
-      message: 'Código de Assinatura Mensal validado!',
+      message: 'Assinatura Mensal validada com sucesso!',
     };
   }
 
   return {
     isActivated: false,
-    message: 'Código ou Link inválido. Verifique sua compra na Kiwify ou entre em contato.',
+    message: 'Link ou código não reconhecido. Cole o Link Mágico enviado no pós-compra da Kiwify.',
   };
 }

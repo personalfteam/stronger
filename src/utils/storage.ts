@@ -25,7 +25,7 @@ export const DEFAULT_PRICING: PricingConfig = {
   lifetimePrice: 149.90,
   monthlyCheckoutUrl: 'https://pay.kiwify.com.br/DL4VOlu',
   lifetimeCheckoutUrl: 'https://pay.kiwify.com.br/n3n2sqb',
-  magicSecretKey: 'STRONGPRO',
+  magicSecretKey: 'SPRO-LIFETIME-2026',
 };
 
 export const DEFAULT_SUBSCRIPTION: UserSubscription = {

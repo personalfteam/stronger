@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Check, Zap, Sparkles, ShieldCheck, Crown, ArrowRight, Settings, Gift, Key } from 'lucide-react';
+import { Check, Crown, ArrowRight, Settings, Key, Sparkles } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { PlanType, PricingConfig, UserSubscription } from '../types';
 import { validateManualActivationCode } from '../utils/kiwify';
@@ -22,7 +22,7 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   onOpenSettings,
 }) => {
   const [selectedBilling, setSelectedBilling] = useState<'lifetime' | 'monthly'>('lifetime');
-  const [couponCode, setCouponCode] = useState('');
+  const [magicLinkInput, setMagicLinkInput] = useState('');
   const [activationMsg, setActivationMsg] = useState('');
   const [couponError, setCouponError] = useState('');
 
@@ -37,15 +37,15 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
     });
   };
 
-  const handleApplyCoupon = (e: React.FormEvent) => {
+  const handleApplyMagicLink = (e: React.FormEvent) => {
     e.preventDefault();
-    const result = validateManualActivationCode(couponCode, pricing);
+    const result = validateManualActivationCode(magicLinkInput, pricing);
     if (result.isActivated) {
       onUpdateSubscription({
         plan: result.plan,
         isActive: true,
         unlockedAt: new Date().toISOString(),
-        promoCodeApplied: couponCode.trim().toUpperCase(),
+        promoCodeApplied: 'MAGIC_LINK_OR_KEY',
         source: result.source,
       });
       setActivationMsg(result.message);
@@ -58,18 +58,6 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
       setCouponError(result.message);
       setActivationMsg('');
     }
-  };
-
-  const handleSimulatePurchase = (plan: PlanType) => {
-    onUpdateSubscription({
-      plan,
-      isActive: true,
-      unlockedAt: new Date().toISOString(),
-      promoCodeApplied: 'TESTE_SIMULADO',
-      source: 'manual',
-    });
-    triggerConfetti();
-    onClose();
   };
 
   const getActiveCheckoutUrl = () => {
@@ -216,16 +204,14 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               {[
-                '📱 Baixar & Instalar App no Celular/PC com dados offline',
-                'Exercícios Ilimitados + Criar Movimentos Próprios',
+                '📱 Instalar App no Celular ou PC para uso 100% offline',
+                'Exercícios Ilimitados + Criar Movimentos Personalizados',
                 'Calculadora Visual de Anilhas Olímpicas (20kg / 15kg / 10kg)',
                 'Tabela Completa de Porcentagens (40% a 115% com 1% precisão)',
-                'Histórico Completo de PRs com Gráficos e Notas',
+                'Histórico Completo de PRs com Gráficos de Evolução',
                 'Modo Box Rápido (Floor Mode) para consulta durante o WOD',
-                'Construtor de Séries & Progressões Automáticas',
+                'Construtor de Séries & Progressões Automáticas de Treino',
                 'Estimador de 1RM com Fórmulas Epley, Brzycki e Lander',
-                'Exportar Aplicativo Portátil Autônomo (.HTML com 1RMs)',
-                'Backup & Sincronização dos Dados do Navegador',
               ].map((feature, i) => (
                 <div key={i} className="flex items-center gap-2 text-zinc-300">
                   <div className="w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0">
@@ -237,63 +223,49 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
             </div>
           </div>
 
-          {/* Coupon, Kiwify Magic Code or Dev Simulation */}
+          {/* Clean Magic Link Validation Form */}
           <div className="pt-3 border-t border-zinc-800 space-y-3 text-xs">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <form onSubmit={handleApplyCoupon} className="flex items-center gap-2 w-full sm:w-auto">
-                <div className="relative flex-1 sm:w-64">
-                  <Key className="w-3.5 h-3.5 text-zinc-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Link da Kiwify ou Código (Ex: STRONGPRO)"
-                    className="w-full bg-zinc-800 border border-zinc-700 rounded-lg pl-8 pr-3 py-1.5 text-zinc-200 text-xs focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 rounded-lg font-black text-xs uppercase tracking-wider shrink-0 transition-all"
-                >
-                  Ativar
-                </button>
-              </form>
-
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                <button
-                  onClick={() =>
-                    handleSimulatePurchase(
-                      selectedBilling === 'lifetime'
-                        ? 'lifetime'
-                        : 'subscription_monthly'
-                    )
-                  }
-                  className="px-3 py-1.5 bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 border border-amber-500/40 rounded-lg font-bold flex items-center gap-1.5 transition-all text-xs"
-                  title="Simula a ativação instantânea para você testar todas as funções PRO agora"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Simular Ativação (Teste)</span>
-                </button>
-
-                <button
-                  onClick={onOpenSettings}
-                  className="p-1.5 text-zinc-400 hover:text-zinc-200 bg-zinc-800/80 rounded-lg border border-zinc-700"
-                  title="Configurar links de checkout e Kiwify"
-                >
-                  <Settings className="w-4 h-4" />
-                </button>
-              </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                Já comprou? Ative com seu Link Mágico ou Chave:
+              </span>
+              <button
+                onClick={onOpenSettings}
+                className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors"
+                title="Configurações de Checkout"
+              >
+                <Settings className="w-3.5 h-3.5" />
+              </button>
             </div>
 
+            <form onSubmit={handleApplyMagicLink} className="flex items-center gap-2 w-full">
+              <div className="relative flex-1">
+                <Key className="w-3.5 h-3.5 text-zinc-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={magicLinkInput}
+                  onChange={(e) => setMagicLinkInput(e.target.value)}
+                  placeholder="Cole seu Link Mágico ou Chave de Acesso"
+                  className="w-full bg-zinc-800 border border-zinc-700 rounded-xl pl-9 pr-3 py-2 text-zinc-100 text-xs focus:outline-none focus:border-amber-500 transition-colors"
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-zinc-950 rounded-xl font-black text-xs uppercase tracking-wider shrink-0 transition-all shadow-md shadow-amber-500/20"
+              >
+                Ativar
+              </button>
+            </form>
+
             {activationMsg && (
-              <div className="p-2.5 rounded-lg bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-xs flex items-center gap-2 font-medium">
+              <div className="p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-700 text-emerald-300 text-xs flex items-center gap-2 font-medium">
                 <Check className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>{activationMsg}</span>
               </div>
             )}
 
             {couponError && (
-              <div className="p-2.5 rounded-lg bg-rose-950/60 border border-rose-800 text-rose-300 text-xs font-medium">
+              <div className="p-2.5 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 text-xs font-medium">
                 {couponError}
               </div>
             )}
