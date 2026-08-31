@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Search,
   Dumbbell,
@@ -16,7 +16,6 @@ import {
   Crown,
   Share2,
   Download,
-  Upload,
   Layers,
   CheckCircle2,
   BarChart3,
@@ -103,8 +102,6 @@ export default function App() {
     message: '',
     visible: false,
   });
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const showSaveNotification = (msg: string) => {
     setSaveToast({ message: msg, visible: true });
@@ -299,53 +296,6 @@ export default function App() {
     showSaveNotification(`Dados de ${updatedProfile.name} salvos com sucesso!`);
   };
 
-  const handleExportData = () => {
-    const dataStr = JSON.stringify(
-      {
-        version: '1.0',
-        exportDate: new Date().toISOString(),
-        exercises,
-        subscription,
-        athleteProfile,
-      },
-      null,
-      2
-    );
-    const blob = new Blob([dataStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `strongprogress-backup-${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const handleImportData = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const parsed = JSON.parse(event.target?.result as string);
-        if (parsed.exercises && Array.isArray(parsed.exercises)) {
-          setExercises(parsed.exercises);
-          if (parsed.subscription) setSubscription(parsed.subscription);
-          if (parsed.athleteProfile) {
-            setAthleteProfile(parsed.athleteProfile);
-            saveStoredAthleteProfile(parsed.athleteProfile);
-          }
-          alert('Backup importado com sucesso!');
-        } else {
-          alert('Arquivo de backup inválido.');
-        }
-      } catch (err) {
-        alert('Erro ao ler arquivo JSON.');
-      }
-    };
-    reader.readAsText(file);
-  };
-
   // Filtered & Sorted exercises
   const filteredExercises = useMemo(() => {
     return exercises.filter((ex) => {
@@ -427,8 +377,6 @@ export default function App() {
         onOpenDownloadApp={() => setIsDownloadOpen(true)}
         onOpenCustomExercise={() => setIsCustomOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        onExportData={handleExportData}
-        onImportData={handleImportData}
       />
 
       {/* Main Container */}
@@ -725,45 +673,28 @@ export default function App() {
       <footer className="mt-12 border-t border-zinc-800/80 bg-zinc-950 py-6 text-center text-xs text-zinc-500 space-y-2">
         <div className="flex flex-wrap items-center justify-center gap-4">
           <button
-            onClick={() => setIsDownloadOpen(true)}
+            onClick={() => {
+              if (!subscription.isActive) {
+                setIsUpgradeOpen(true);
+              } else {
+                setIsDownloadOpen(true);
+              }
+            }}
             className="hover:text-amber-300 flex items-center gap-1 font-bold text-amber-400"
           >
             <Download className="w-3.5 h-3.5" />
-            <span>Baixar App (com Dados Offline)</span>
+            <span>{t.downloadApp}</span>
           </button>
-          <span>•</span>
-          <button
-            onClick={handleExportData}
-            className="hover:text-zinc-300 flex items-center gap-1 font-semibold"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Fazer Backup (Exportar)</span>
-          </button>
-          <span>•</span>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            className="hover:text-zinc-300 flex items-center gap-1 font-semibold"
-          >
-            <Upload className="w-3.5 h-3.5" />
-            <span>Restaurar Backup</span>
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept=".json"
-            onChange={handleImportData}
-            className="hidden"
-          />
           <span>•</span>
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="hover:text-zinc-300 font-semibold"
+            className="hover:text-zinc-300 font-semibold text-zinc-400"
           >
-            Links & Preços
+            Links de Checkout & Preços
           </button>
         </div>
         <p className="text-[11px] text-zinc-600">
-          StrongProgress • Desenvolvido para Atletas e Coaches de CrossFit e Levantamento de Peso.
+          StrongProgress • Calculadora de Cargas & Porcentagens para Atletas e Coaches de CrossFit e LPO.
         </p>
       </footer>
 

@@ -18,8 +18,6 @@ interface HeaderProps {
   onOpenDownloadApp: () => void;
   onOpenCustomExercise: () => void;
   onOpenSettings: () => void;
-  onExportData: () => void;
-  onImportData: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -36,8 +34,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenDownloadApp,
   onOpenCustomExercise,
   onOpenSettings,
-  onExportData,
-  onImportData,
 }) => {
   const isPro = subscription.isActive;
   const t = TRANSLATIONS[language] || TRANSLATIONS.pt;

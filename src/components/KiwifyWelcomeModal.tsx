@@ -1,6 +1,6 @@
 import React from 'react';
-import { Crown, Sparkles, CheckCircle2, Download, Smartphone, ArrowRight, ShieldCheck } from 'lucide-react';
-import { PlanType, UserSubscription } from '../types';
+import { Crown, Sparkles, CheckCircle2, Smartphone, ArrowRight, ShieldCheck } from 'lucide-react';
+import { UserSubscription } from '../types';
 
 interface KiwifyWelcomeModalProps {
   isOpen: boolean;
@@ -41,7 +41,7 @@ export const KiwifyWelcomeModal: React.FC<KiwifyWelcomeModalProps> = ({
             {subscription.buyerName ? `Bem-vindo, ${subscription.buyerName}!` : 'Seja Bem-vindo ao StrongProgress PRO!'}
           </h2>
           <p className="text-xs font-bold text-zinc-900/90 mt-1 max-w-sm mx-auto">
-            Seu {planLabel} foi ativado com sucesso. Todas as funcionalidades e o direito de baixar o app estão 100% liberados!
+            Seu {planLabel} foi ativado com sucesso. Todas as funcionalidades e o direito de instalar o app estão 100% liberados!
           </p>
         </div>
 
@@ -74,11 +74,11 @@ export const KiwifyWelcomeModal: React.FC<KiwifyWelcomeModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               {[
                 '📱 Instalar App no Celular (PWA Offline)',
-                '⚡ Baixar App Portátil Autônomo (.html)',
-                '🏋️ Todos os Exercícios de LPO & CrossFit',
+                '🏋️ Catálogo Completo de LPO & CrossFit',
                 '🎨 Calculadora Visual de Anilhas & Barras',
                 '📊 Tabela Completa de Porcentagens',
-                '📈 Histórico de Recordes & Estimador 1RM',
+                '📈 Histórico de Recordes & Evolução',
+                '⚡ Estimador 1RM & Zonas RPE',
               ].map((item, idx) => (
                 <div key={idx} className="flex items-center gap-2 p-2 rounded-xl bg-zinc-950/60 border border-zinc-800/80 text-zinc-200">
                   <div className="w-4 h-4 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 text-[10px] font-bold">
@@ -90,7 +90,7 @@ export const KiwifyWelcomeModal: React.FC<KiwifyWelcomeModalProps> = ({
             </div>
           </div>
 
-          {/* Primary Action: Download App Button */}
+          {/* Primary Action: Install App Button */}
           <div className="pt-2 space-y-3">
             <button
               onClick={() => {
@@ -114,7 +114,7 @@ export const KiwifyWelcomeModal: React.FC<KiwifyWelcomeModalProps> = ({
 
           <div className="flex items-center justify-center gap-2 text-[11px] text-zinc-500 text-center">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Seus dados ficam salvos automaticamente no seu navegador.</span>
+            <span>Seus recordes e treinos ficam salvos com segurança.</span>
           </div>
         </div>
       </div>
