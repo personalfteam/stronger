@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dumbbell,
   Crown,
@@ -20,7 +20,9 @@ import {
   Users,
   Clock,
   HeartPulse,
-  BookOpen,
+  Share2,
+  Copy,
+  Check,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { BarbellType, Exercise, PricingConfig, UserSubscription } from '../types';
@@ -29,7 +31,6 @@ import { BARBELL_SPECS } from '../data/initialExercises';
 interface LandingPageProps {
   onEnterApp: () => void;
   onOpenUpgrade: () => void;
-  onOpenManual: () => void;
   subscription: UserSubscription;
   pricing: PricingConfig;
   exercises: Exercise[];
@@ -38,11 +39,13 @@ interface LandingPageProps {
 export const LandingPage: React.FC<LandingPageProps> = ({
   onEnterApp,
   onOpenUpgrade,
-  onOpenManual,
   subscription,
   pricing,
   exercises,
 }) => {
+  const [copied, setCopied] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+
   const triggerConfetti = () => {
     confetti({
       particleCount: 70,
@@ -55,6 +58,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({
   const handleStartFree = () => {
     triggerConfetti();
     onEnterApp();
+  };
+
+  const shareTitle = 'StrongProgress • Calculadora de Cargas e Anilhas para CrossTraining';
+  const shareText = 'Descubra o app gratuito que calcula as porcentagens dos WODs e mostra a montagem exata das anilhas olímpicas para nunca mais errar as cargas!';
+  const shareUrl = typeof window !== 'undefined' ? window.location.origin + window.location.pathname : 'https://strongprogress.app';
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        });
+        return;
+      } catch (err) {
+        // User cancelled or share failed, fallback to modal / copy
+      }
+    }
+    setShowShareModal(true);
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(`${shareText}\n\nAcesse grátis aqui: ${shareUrl}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  const handleWhatsAppShare = () => {
+    const message = encodeURIComponent(`${shareText}\n\n👉 Acesse grátis aqui: ${shareUrl}`);
+    window.open(`https://api.whatsapp.com/send?text=${message}`, '_blank');
+  };
+
+  const handleTelegramShare = () => {
+    const text = encodeURIComponent(shareText);
+    const url = encodeURIComponent(shareUrl);
+    window.open(`https://t.me/share/url?url=${url}&text=${text}`, '_blank');
   };
 
   return (
@@ -93,15 +133,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            {/* Share with Friends Button */}
             <button
-              onClick={onOpenManual}
-              className="hidden sm:flex items-center gap-1.5 text-xs text-zinc-300 hover:text-amber-400 font-bold px-3 py-1.5 transition-colors"
+              onClick={handleShare}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-amber-500/40 text-amber-400 hover:text-amber-300 text-xs font-bold transition-all shadow-sm group"
+              title="Compartilhar com amigos do Box"
             >
-              <BookOpen className="w-4 h-4 text-amber-400" />
-              <span>Manual de Uso</span>
+              <Share2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <span className="hidden sm:inline">Compartilhar com Amigos</span>
+              <span className="sm:hidden">Compartilhar</span>
             </button>
 
+            {/* CTA Enter Free App */}
             <button
               onClick={handleStartFree}
               className="px-4 py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-zinc-950 rounded-xl text-xs font-black uppercase tracking-wider shadow-lg shadow-amber-500/20 flex items-center gap-1.5 transition-all transform hover:scale-105 active:scale-95"
@@ -581,12 +625,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       {/* FOOTER */}
       <footer className="mt-12 text-center text-xs text-zinc-500 space-y-3">
         <div className="flex flex-wrap items-center justify-center gap-4 text-zinc-400 font-medium">
-          <button onClick={handleStartFree} className="hover:text-amber-400">
-            Acessar Aplicativo
+          <button onClick={handleStartFree} className="hover:text-amber-400 font-bold text-amber-400/90">
+            Acessar Aplicativo Grátis
           </button>
           <span>•</span>
-          <button onClick={onOpenManual} className="hover:text-amber-400">
-            Manual de Uso
+          <button onClick={handleShare} className="hover:text-amber-400 flex items-center gap-1">
+            <Share2 className="w-3.5 h-3.5 text-amber-400" />
+            <span>Compartilhar com Amigos</span>
           </button>
           <span>•</span>
           <button onClick={onOpenUpgrade} className="hover:text-amber-400">
@@ -597,6 +642,77 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           StrongProgress &copy; {new Date().getFullYear()} — Plataforma de Alta Performance em CrossTraining e LPO. Todos os direitos reservados.
         </p>
       </footer>
+
+      {/* SHARE MODAL */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5 text-amber-400">
+                <Share2 className="w-5 h-5" />
+                <h3 className="font-display font-black text-lg text-zinc-100 uppercase tracking-tight">
+                  Compartilhar App
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-200 flex items-center justify-center text-xs font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-zinc-300 leading-relaxed">
+              Ajude seus amigos e colegas do box a nunca mais errarem as contas de anilhas e porcentagens nos treinos de CrossTraining!
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 pt-1">
+              <button
+                onClick={handleWhatsAppShare}
+                className="py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all"
+              >
+                <span>WhatsApp</span>
+              </button>
+              <button
+                onClick={handleTelegramShare}
+                className="py-3 px-4 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all"
+              >
+                <span>Telegram</span>
+              </button>
+            </div>
+
+            <div className="space-y-2 pt-2 border-t border-zinc-800">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                Ou copie o link direto:
+              </span>
+              <div className="flex items-center gap-2 bg-zinc-950 border border-zinc-800 rounded-xl p-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={shareUrl}
+                  className="bg-transparent text-xs text-zinc-300 flex-1 outline-none px-1 select-all"
+                />
+                <button
+                  onClick={handleCopyLink}
+                  className="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-zinc-950 rounded-lg text-xs font-black flex items-center gap-1.5 transition-colors shrink-0"
+                >
+                  {copied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Copiado!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copiar</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -66,15 +66,31 @@ import { checkKiwifyUrlParams } from './utils/kiwify';
 import { User, Award, Activity, HeartPulse } from 'lucide-react';
 
 export default function App() {
-  // State
+  // State - Default to 'landing' for free users, and 'app' directly for PRO subscribers
   const [currentScreen, setCurrentScreen] = useState<'app' | 'landing'>(() => {
     if (typeof window !== 'undefined') {
       const search = window.location.search.toLowerCase();
-      if (search.includes('landing') || search.includes('apresentacao') || search.includes('apresenta')) {
+      // If direct app link requested (?app=true or ?direct=true) or kiwify unlock
+      if (search.includes('app=true') || search.includes('direct=true') || search.includes('kiwify=unlock')) {
+        return 'app';
+      }
+      // If user explicitly asks for landing page (?landing=true or ?apresentacao)
+      if (search.includes('landing=true') || search.includes('apresentacao') || search.includes('apresenta')) {
         return 'landing';
       }
+      // Check if user is already an active PRO subscriber
+      try {
+        const storedSub = getStoredSubscription();
+        if (storedSub && storedSub.isActive && storedSub.plan !== 'free') {
+          // PRO subscribers go straight to the app workspace!
+          return 'app';
+        }
+      } catch {
+        // Fallback to landing if storage read fails
+      }
     }
-    return 'app';
+    // Free / New users see the presentation landing page
+    return 'landing';
   });
   const [language, setLanguage] = useState<Language>(getStoredLanguage);
   const [exercises, setExercises] = useState<Exercise[]>(getStoredExercises);
@@ -137,6 +153,7 @@ export default function App() {
       };
       setSubscription(newSub);
       saveStoredSubscription(newSub);
+      setCurrentScreen('app');
 
       confetti({
         particleCount: 120,
@@ -155,6 +172,24 @@ export default function App() {
       }
     }
   }, [pricing]);
+
+  // Listen for Escape key to close open modals
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsUpgradeOpen(false);
+        setIsSettingsOpen(false);
+        setIsDownloadOpen(false);
+        setIsUserManualOpen(false);
+        setIsKiwifyWelcomeOpen(false);
+        setIsDetailOpen(false);
+        setIsCustomOpen(false);
+        setIsAthleteProfileOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Listen for beforeinstallprompt event for PWA installation
   useEffect(() => {
@@ -379,7 +414,6 @@ export default function App() {
         <LandingPage
           onEnterApp={() => setCurrentScreen('app')}
           onOpenUpgrade={() => setIsUpgradeOpen(true)}
-          onOpenManual={() => setIsUserManualOpen(true)}
           subscription={subscription}
           pricing={pricing}
           exercises={exercises}
@@ -726,13 +760,6 @@ export default function App() {
           >
             <Download className="w-3.5 h-3.5" />
             <span>{t.downloadApp}</span>
-          </button>
-          <span>•</span>
-          <button
-            onClick={() => setIsSettingsOpen(true)}
-            className="hover:text-zinc-300 font-semibold text-zinc-400"
-          >
-            Links de Checkout & Preços
           </button>
         </div>
         <p className="text-[11px] text-zinc-600">

@@ -59,37 +59,43 @@ export const DownloadAppModal: React.FC<DownloadAppModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-lg bg-zinc-900 border border-amber-500/30 rounded-2xl shadow-2xl overflow-hidden my-6">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="relative w-full max-w-lg bg-zinc-900 border border-amber-500/30 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden my-auto">
         {/* Header */}
-        <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 p-5 text-zinc-950 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-zinc-950 text-amber-400 flex items-center justify-center shadow-lg font-black">
+        <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 px-4 py-3.5 sm:px-5 sm:py-4 text-zinc-950 flex items-center justify-between shrink-0 shadow-md">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-zinc-950 text-amber-400 flex items-center justify-center shadow font-black shrink-0">
               <Download className="w-5 h-5" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-black tracking-tight font-display text-zinc-950 uppercase">
-                  Instalar / Baixar App
+              <div className="flex items-center gap-1.5">
+                <h2 className="text-lg sm:text-xl font-black tracking-tight font-display text-zinc-950 uppercase leading-none">
+                  Instalar App
                 </h2>
                 <span className="bg-zinc-950 text-amber-400 text-[10px] px-2 py-0.5 rounded-full font-black uppercase tracking-wider">
                   {isPro ? 'PRO Ativo' : 'Exclusivo PRO'}
                 </span>
               </div>
-              <p className="text-xs font-semibold text-zinc-900/90">
-                Instale no seu Celular ou PC para usar em tela cheia e 100% offline.
+              <p className="text-[11px] font-semibold text-zinc-900/90 leading-tight mt-0.5">
+                Use em tela cheia e 100% offline no celular ou PC
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-900 hover:text-zinc-950 hover:bg-black/10 rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold transition-all"
+            className="w-8 h-8 rounded-full bg-zinc-950/20 hover:bg-zinc-950 text-zinc-950 hover:text-amber-400 flex items-center justify-center text-sm font-black transition-all shrink-0 ml-2"
+            title="Fechar (Esc)"
           >
             ✕
           </button>
         </div>
 
-        <div className="p-6 space-y-5">
+        <div className="p-4 sm:p-5 space-y-4 overflow-y-auto flex-1">
           {/* IF NOT PRO: LOCKED STATE */}
           {!isPro ? (
             <div className="p-6 rounded-2xl bg-zinc-950 border border-amber-500/30 text-center space-y-4">

@@ -51,28 +51,34 @@ export const CheckoutSettingsModal: React.FC<CheckoutSettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl overflow-hidden my-6">
-        <div className="p-6 border-b border-zinc-800 flex items-center justify-between">
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="relative w-full max-w-2xl bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden my-auto">
+        <div className="p-4 sm:p-5 border-b border-zinc-800 flex items-center justify-between shrink-0">
           <div>
-            <h3 className="text-lg font-bold text-zinc-100 flex items-center gap-2">
+            <h3 className="text-base sm:text-lg font-bold text-zinc-100 flex items-center gap-2">
               <Link className="w-5 h-5 text-amber-400" />
               <span>Configurações de Venda & Integração Kiwify</span>
             </h3>
-            <p className="text-xs text-zinc-400 mt-1">
+            <p className="text-xs text-zinc-400 mt-0.5">
               Configure preços, links de checkout e os <strong>Links Mágicos de Liberação Automática</strong> da Kiwify.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-400 hover:text-zinc-100 rounded-full w-8 h-8 flex items-center justify-center"
+            className="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-zinc-100 flex items-center justify-center text-sm font-bold ml-2 shrink-0"
+            title="Fechar (Esc)"
           >
             ✕
           </button>
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-zinc-800 px-6 pt-3 gap-4">
+        <div className="flex border-b border-zinc-800 px-4 sm:px-6 pt-3 gap-4 shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('prices')}
@@ -100,7 +106,8 @@ export const CheckoutSettingsModal: React.FC<CheckoutSettingsModalProps> = ({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto flex flex-col justify-between">
+          <div className="p-4 sm:p-6 space-y-5 flex-1">
           {activeTab === 'prices' && (
             <div className="space-y-4">
               {/* Preço e Link Vitalício */}
@@ -269,8 +276,9 @@ export const CheckoutSettingsModal: React.FC<CheckoutSettingsModalProps> = ({
               </div>
             </div>
           )}
+          </div>
 
-          <div className="flex items-center justify-between pt-2 border-t border-zinc-800">
+          <div className="flex items-center justify-between p-4 bg-zinc-950 border-t border-zinc-800 shrink-0">
             <button
               type="button"
               onClick={handleResetDefaults}
