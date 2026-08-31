@@ -577,7 +577,7 @@ export default function App() {
                 <span>•</span>
                 <span>{t.height}: <strong className="text-zinc-200">{athleteProfile.heightCm} cm</strong></span>
                 <span>•</span>
-                <span>{t.bmi}: <strong className="text-amber-400">{athleteBmi}</strong></span>
+                <span>{t.bmi}: <strong className="text-amber-400">{athleteBmi.bmi > 0 ? athleteBmi.bmi : '--'}</strong></span>
                 <span>•</span>
                 <span>{t.relativeStrength}: <strong className="text-emerald-400">{athleteSummary.averageRatio}x BW</strong></span>
                 <span>•</span>
